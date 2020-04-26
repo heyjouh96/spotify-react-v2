@@ -1,20 +1,41 @@
-import React, { Component } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 
-import Search from '../Search';
-import ResultList from './ResultList.js';
+import { fetchAlbums } from '../../actions/mainActions';
+import { getRecent } from '../../helpers/utils';
+
+import Search from './Search';
+import ResultList from './ResultList';
 
 
-class AlbumList extends Component {
+function AlbumList() {
+  const [search, setSearch] = useState('');
+  const title = search == '' ? 'Álbuns buscados recentemente' : `Resultados encontrados para "${search}"`;
+  
+  const dispatch = useDispatch();
+  const albums = useSelector(state => state.albumReducer.items.albums ? state.albumReducer.items.albums.items : getRecent());
 
-    render() {
-        return (
-            <div>
-                <Search /> 
-
-                <ResultList />
-            </div>
-        );
+  useEffect(() => {
+    if (window.audio) {
+      window.audio.pause();
     }
+  });
+
+  const receiveSearchValue = (value) => {
+    if (value.trim() !== '') {
+      setSearch(value);
+      dispatch(fetchAlbums(value));
+    }
+  }
+
+  return (
+    <div>
+      <Search sendSearchValue={receiveSearchValue} />
+
+      <h2>{title}</h2>
+      <ResultList albums={albums} />
+    </div>
+  );
 }
 
 export default AlbumList;

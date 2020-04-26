@@ -1,98 +1,104 @@
 const tokenValidation = () => {
-    const token = getToken();
+	const token = getToken();
 
-    if (!token) {
-        redirectToSpotify();
-    } else {
-        if (!validateExpireToken(token)) {
-            
-            redirectToSpotify();
+	if (!token) {
+		redirectToSpotify();
+	} else {
+		if (!validateExpireToken(token)) {
 
-        } 
+			redirectToSpotify();
 
-        clearHashToken();
-    }
+		}
+
+		clearHashToken();
+	}
 }
 
 const extractQueryString = search => {
-    return JSON.parse('{"' + decodeURI(search).replace(/"/g, '\\"').replace(/&/g, '","').replace(/=/g, '":"') + '"}')
+	return JSON.parse('{"' + decodeURI(search).replace(/"/g, '\\"').replace(/&/g, '","').replace(/=/g, '":"') + '"}')
 }
 
 const getToken = () => {
-    var search = window.location.hash.split("#")[1];
+	var search = window.location.hash.split("#")[1];
 
-    if (search) {
-        // primeiro acesso após autorização, token na url
-        const auth = extractQueryString(search);
+	if (search) {
+		// primeiro acesso após autorização, token na url
+		const auth = extractQueryString(search);
 
-        localStorage.setItem(
-            "authorization",
-            JSON.stringify({
-                access_token: auth.access_token,
-                authorizationTime: new Date(),
-                expires_in: auth.expires_in
-            })
-        );
+		localStorage.setItem(
+			"authorization",
+			JSON.stringify({
+				access_token: auth.access_token,
+				authorizationTime: new Date(),
+				expires_in: auth.expires_in
+			})
+		);
 
-        const authorization = localStorage.getItem("authorization");
-        return JSON.parse(authorization);
-    }
-    else {
-        const authorization = localStorage.getItem("authorization");
-        return JSON.parse(authorization);
-    }
+		const authorization = localStorage.getItem("authorization");
+		return JSON.parse(authorization);
+	}
+	else {
+		const authorization = localStorage.getItem("authorization");
+		return JSON.parse(authorization);
+	}
 }
 
 const clearHashToken = () => {
-    // history.pushState(
-    //     "initial",
-    //     document.title,
-    //     window.location.href.split("#")[0]
-    // );
+	// history.pushState(
+	//     "initial",
+	//     document.title,
+	//     window.location.href.split("#")[0]
+	// );
 };
 
 const validateExpireToken = token => {
-    const now = new Date();
-    const expire = new Date(new Date(token.authorizationTime).setSeconds(token.expires_in));
-    
-    const valid = now <= expire;
-    return valid;
+	const now = new Date();
+	const expire = new Date(new Date(token.authorizationTime).setSeconds(token.expires_in));
+
+	const valid = now <= expire;
+	return valid;
 };
 
 const redirectToSpotify = () => {
-    const url = process.env.REACT_APP_SPOTIFY_ACCOUNTS_URL;
-    const clientId = process.env.REACT_APP_CLIENT_ID;
+	const url = process.env.REACT_APP_SPOTIFY_ACCOUNTS_URL;
+	const clientId = process.env.REACT_APP_CLIENT_ID;
 
-    window.location.href = `${url}authorize?client_id=${clientId}&response_type=token&redirect_uri=${"http://localhost:8080"}`;
+	window.location.href = `${url}authorize?client_id=${clientId}&response_type=token&redirect_uri=${"http://localhost:3000"}`;
 };
 
 const setRecent = album => {
-    var albuns = [], exist = [];
-    var recent = JSON.parse(localStorage.getItem('recent'));
+	var albuns = [], exist = [];
+	var recent = JSON.parse(localStorage.getItem('recent'));
 
-    if (recent !== null) {
-        exist = recent.filter(item => item.id === album.id);
-        albuns = recent;
-    } 
+	if (recent !== null) {
+		exist = recent.filter(item => item.id === album.id);
+		albuns = recent;
+	}
 
-    if (exist.length === 0) {
-        albuns.push(
-            {
-                id: album.id,
-                name: album.name,
-                image: album.images.length !== 0 ? album.images[1].url : null,
-                artist: album.artists[0].name,
-                artistid: album.artists[0].id
-            }
-        );
+	if (exist.length === 0) {
+		albuns.push(
+			{
+				id: album.id,
+				name: album.name,
+				images: album.images,
+				artists: album.artists,
+			}
+		);
 
-        localStorage.setItem(
-            "recent", JSON.stringify(albuns) 
-        );
-    }
+		localStorage.setItem(
+			"recent", JSON.stringify(albuns)
+		);
+	}
 }
 
+const getRecent = () => {
+	let recent = [];
+	if (JSON.parse(localStorage.getItem("recent")) !== null) { // verifica se existe albuns recentes no localStorage
+		recent = JSON.parse(localStorage.getItem("recent"));
+	}
+	return recent;
+}
 
 export {
-    extractQueryString, getToken, tokenValidation, setRecent
+	extractQueryString, getToken, tokenValidation, setRecent, getRecent
 };
