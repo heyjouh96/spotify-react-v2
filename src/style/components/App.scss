@@ -1,0 +1,57 @@
+@import '../base/colors.scss';
+
+body {
+    font-family: 'Roboto', sans-serif;
+    background: $background;
+    color: $font-color1;
+}
+
+.wrapper {
+    margin: 0 auto;
+    padding: 50px;
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    box-sizing: border-box;
+    .side {
+        width: 15%;
+        height: 100px;
+        img {
+            width: 100px;
+        }
+    }
+    .main-content {
+        width: 85%;
+    }
+}
+
+@media (max-width: 1000px) {
+    .wrapper {
+        padding: 20px;
+    }
+}
+
+@media (max-width: 768px) {
+    .wrapper {
+        display: block;
+        .side {
+            width: 100%;
+        }
+    
+        .main-content {
+            width: 100%;
+        }
+    }
+    
+}
+
+@media (max-width: 400px) {
+    .wrapper {
+        padding: 20px;
+    }
+}
+
+
+
+
+
